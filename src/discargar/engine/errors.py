@@ -3,6 +3,10 @@
 El detalle técnico crudo (salida de yt-dlp, tracebacks) nunca llega a la
 interfaz: se registra en el log y aquí solo queda una categoría estable más
 un mensaje ya traducido a lenguaje humano.
+
+Los mensajes están en inglés a propósito: son texto de producto (la interfaz
+es solo en inglés, por decisión del proyecto), a diferencia de las
+herramientas de desarrollo como engine/cli.py.
 """
 
 from __future__ import annotations
@@ -26,14 +30,14 @@ class ErrorCategory(Enum):
 
 
 _MESSAGES = {
-    ErrorCategory.INVALID_URL: "Eso no parece un enlace válido. Pega la URL completa del vídeo.",
-    ErrorCategory.NO_CONNECTION: "No hay conexión a internet. Comprueba tu red e inténtalo de nuevo.",
-    ErrorCategory.UNAVAILABLE: "Este contenido no está disponible: puede ser privado, haberse eliminado o tener restricción de edad.",
-    ErrorCategory.FFMPEG_MISSING: "Falta ffmpeg en el sistema. Instálalo con el gestor de paquetes de tu distribución.",
-    ErrorCategory.EXTRACTION_FAILED: "No se ha podido extraer el vídeo. La plataforma puede haber cambiado algo; prueba a actualizar el motor.",
-    ErrorCategory.DISK_FULL: "No hay espacio suficiente en el disco.",
-    ErrorCategory.PERMISSION_DENIED: "No hay permisos de escritura en la carpeta de descargas.",
-    ErrorCategory.UNKNOWN: "Ha ocurrido un error inesperado. Revisa el registro para más detalle.",
+    ErrorCategory.INVALID_URL: "That doesn't look like a valid link. Paste the full video URL.",
+    ErrorCategory.NO_CONNECTION: "No internet connection. Check your network and try again.",
+    ErrorCategory.UNAVAILABLE: "This content isn't available: it may be private, removed, or age-restricted.",
+    ErrorCategory.FFMPEG_MISSING: "ffmpeg is missing on this system. Install it with your distribution's package manager.",
+    ErrorCategory.EXTRACTION_FAILED: "Couldn't extract the video. The platform may have changed something; try updating the engine.",
+    ErrorCategory.DISK_FULL: "Not enough disk space.",
+    ErrorCategory.PERMISSION_DENIED: "No write permission for the downloads folder.",
+    ErrorCategory.UNKNOWN: "An unexpected error occurred. Check the log for details.",
 }
 
 

@@ -8,9 +8,19 @@ license = { text = "GPL-3.0-or-later" }
 authors = [{ name = "disca_japon", email = "disca_japon@proton.me" }]
 dependencies = ["PySide6>=6.7"]
 
+[project.scripts]
+discargar = "discargar.app:main"
+
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+discargar = [
+    "licenses/*.txt",
+    "ui/qml/*.qml",
+    "ui/shaders/*.qsb",
+]
