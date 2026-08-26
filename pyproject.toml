@@ -1,0 +1,16 @@
+[project]
+name = "discargar"
+version = "0.1.0"
+description = "Descarga vídeo y audio pegando un enlace, sin anuncios ni cuentas."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "GPL-3.0-or-later" }
+authors = [{ name = "disca_japon", email = "disca_japon@proton.me" }]
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
