@@ -9,6 +9,10 @@ from __future__ import annotations
 
 from enum import Enum
 
+from discargar.log import get_logger
+
+logger = get_logger(__name__)
+
 
 class ErrorCategory(Enum):
     INVALID_URL = "invalid_url"
@@ -40,6 +44,7 @@ class EngineError(Exception):
         self.category = category
         self.detail = detail
         super().__init__(_MESSAGES[category])
+        logger.warning("EngineError(%s): %s", category.value, detail)
 
     @property
     def user_message(self) -> str:
