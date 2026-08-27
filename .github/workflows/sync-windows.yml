@@ -82,4 +82,4 @@ jobs:
             --title "Sync common logic from discargar-linux" \
             --body "Sincronización automática desde https://github.com/${{ github.repository }}/commit/${GITHUB_SHA}.
 
-Revisa antes de fusionar: esto sobrescribe \`src/discargar/engine/\` y la mayor parte de \`src/discargar/ui/\` (se excluye \`ui/motion.py\`, específico de cada plataforma)."
+          Revisa antes de fusionar: esto sobrescribe \`src/discargar/engine/\` y la mayor parte de \`src/discargar/ui/\` (se excluye \`ui/motion.py\`, específico de cada plataforma)."
