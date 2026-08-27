@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Ficha AppStream para Flathub. Campos obligatorios según la guía vigente
+  (https://docs.flathub.org/docs/for-app-authors/metainfo-guidelines):
+  id (debe coincidir exactamente con el app-id), name, summary,
+  description, metadata_license (licencia de este propio archivo, no de la
+  app), project_license, launchable, url homepage, content_rating.
+
+  El bloque <content_rating> es un primer borrador razonable (sin contenido
+  generado por usuarios, sin publicidad, con acceso a red) pero no se
+  comprobó contra los valores OARS exactos que usa una app comparable ya
+  publicada en Flathub — revisar antes de enviarlo.
+-->
+<component type="desktop-application">
+  <id>com.discajapon.Discargar</id>
+  <name>Discargar</name>
+  <summary>Download video and audio by pasting a link</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <developer id="com.discajapon">
+    <name>disca_japon</name>
+  </developer>
+  <launchable type="desktop-id">com.discajapon.Discargar.desktop</launchable>
+
+  <description>
+    <p>
+      Discargar downloads video and audio from the web: paste a link and
+      get the file in your Downloads folder, at the best available
+      quality. No ads, no intermediate pages, no accounts. Everything
+      happens on your machine — traffic goes straight from your
+      connection to the source, there is no backend server and no
+      telemetry.
+    </p>
+    <p>
+      Only download content you own, that has a free license, or that its
+      rights holder allows you to copy.
+    </p>
+  </description>
+
+  <url type="homepage">https://discajapon.com</url>
+  <url type="vcs-browser">https://github.com/discajapon/discargar-linux</url>
+  <url type="bugtracker">https://github.com/discajapon/discargar-linux/issues</url>
+
+  <content_rating type="oars-1.1">
+    <content_attribute id="social-info">none</content_attribute>
+  </content_rating>
+
+  <releases>
+    <release version="0.1.0" date="2026-08-26">
+      <description>
+        <p>First packaged version.</p>
+      </description>
+    </release>
+  </releases>
+
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+</component>

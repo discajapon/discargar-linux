@@ -7,6 +7,7 @@ QML, y carga la ventana principal.
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -26,10 +27,11 @@ def main() -> int:
     app = QGuiApplication(sys.argv)
     app.setApplicationName("discargar")
     app.setOrganizationName("disca_japon")
-    # Debe coincidir con el nombre base de data/discargar.desktop para que
-    # GNOME agrupe la ventana con el icono correcto en la instalación
-    # nativa; en Flatpak esto lo resuelve el propio sandbox y no estorba.
-    app.setDesktopFileName("discargar")
+    # Debe coincidir con el nombre base del .desktop instalado para que
+    # GNOME agrupe la ventana con el icono correcto: "discargar" en la
+    # instalación nativa, o el app-id completo bajo Flatpak (FLATPAK_ID lo
+    # trae puesto el propio sandbox).
+    app.setDesktopFileName(os.environ.get("FLATPAK_ID", "discargar"))
 
     theme = Theme()
     reduced_motion = ReducedMotion()

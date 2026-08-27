@@ -1,0 +1,60 @@
+# Manifiesto de Flatpak. Basado en las convenciones actuales documentadas
+# por el propio proyecto io.qt.PySide.BaseApp
+# (https://github.com/flathub/io.qt.PySide.BaseApp) y la guía de Flatpak
+# para apps Python de KDE (https://develop.kde.org/docs/getting-started/python/python-flatpak/):
+# usar el runtime de KDE más el BaseApp de PySide evita tener que compilar
+# PySide6/Qt6 dentro del sandbox.
+#
+# Sin verificar todavía (comprobar contra el README real de
+# io.qt.PySide.BaseApp antes de una build de producción/envío a Flathub):
+# las variables BASEAPP_REMOVE_WEBENGINE / BASEAPP_DISABLE_NUMPY existen
+# como optimización para saltarse partes de PySide6 que esta app no usa;
+# se dejan fuera aquí a propósito hasta confirmar sus nombres exactos.
+
+id: com.discajapon.Discargar
+runtime: org.kde.Platform
+runtime-version: '6.11'
+sdk: org.kde.Sdk
+base: io.qt.PySide.BaseApp
+base-version: '6.11'
+command: discargar
+
+finish-args:
+  # Ventana Qt Quick bajo Wayland, con respaldo a X11.
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --share=ipc
+  # GPU: el panel de cristal usa un shader GLSL propio (refraction.frag).
+  - --device=dri
+  # discargar y yt-dlp necesitan red (comprobar/instalar el motor, y las
+  # descargas en sí).
+  - --share=network
+  # Único directorio del host al que se escribe: la carpeta de descargas
+  # real del usuario. Nunca --filesystem=home.
+  - --filesystem=xdg-download
+  # flatpak-spawn --host, para poder invocar el ffmpeg del sistema desde
+  # dentro del sandbox (el sandbox no ve /usr/bin/ffmpeg del host de otra
+  # forma). Ver src/discargar/engine/ffmpeg_bridge.py.
+  - --talk-name=org.freedesktop.Flatpak
+  # El acceso a los portales de escritorio (incluido
+  # org.freedesktop.portal.Settings, usado para "reducir movimiento") ya
+  # está permitido por defecto por el propio sandbox de Flatpak; no hace
+  # falta declarar --talk-name aparte para eso.
+
+cleanup-commands:
+  - /app/cleanup-BaseApp.sh
+
+modules:
+  - name: discargar
+    buildsystem: simple
+    build-commands:
+      - pip3 install --no-build-isolation --prefix=/app .
+      - install -Dm644 packaging/flatpak/com.discajapon.Discargar.desktop
+          /app/share/applications/com.discajapon.Discargar.desktop
+      - install -Dm644 packaging/flatpak/com.discajapon.Discargar.metainfo.xml
+          /app/share/metainfo/com.discajapon.Discargar.metainfo.xml
+      - install -Dm644 data/icons/discargar.svg
+          /app/share/icons/hicolor/scalable/apps/com.discajapon.Discargar.svg
+    sources:
+      - type: dir
+        path: ../..

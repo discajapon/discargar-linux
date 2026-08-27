@@ -1,0 +1,85 @@
+name: Sync common logic to Windows repo
+
+# Copia src/discargar/engine/ y la mayor parte de src/discargar/ui/ (menos
+# ui/motion.py, específico de Linux) al repositorio hermano de Windows, y
+# abre un pull request ahí — nunca empuja directo a su rama principal.
+#
+# Para activarlo hacen falta, en la configuración de este repositorio:
+#   - Variable de repositorio WINDOWS_REPO, con "owner/nombre-del-repo".
+#   - Secreto WINDOWS_REPO_TOKEN, un token con permiso de escritura sobre
+#     ese repositorio.
+# Ver la sección "Sincronización con el repositorio de Windows" del README.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/discargar/engine/**"
+      - "src/discargar/ui/**"
+      - "src/discargar/app.py"
+      - "src/discargar/log.py"
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout discargar-linux
+        uses: actions/checkout@v4
+        with:
+          path: source-repo
+
+      - name: Comprobar que el destino está configurado
+        run: |
+          if [ -z "${{ vars.WINDOWS_REPO }}" ]; then
+            echo "::error::Falta la variable de repositorio WINDOWS_REPO (owner/nombre-del-repo)."
+            echo "Configúrala en Settings > Secrets and variables > Actions > Variables."
+            exit 1
+          fi
+
+      - name: Checkout repositorio de Windows
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.WINDOWS_REPO }}
+          token: ${{ secrets.WINDOWS_REPO_TOKEN }}
+          path: dest-repo
+
+      - name: Sincronizar directorios comunes
+        run: |
+          set -euo pipefail
+          mkdir -p dest-repo/src/discargar/engine dest-repo/src/discargar/ui
+          rsync -a --delete \
+            source-repo/src/discargar/engine/ dest-repo/src/discargar/engine/
+          rsync -a --delete --exclude 'motion.py' \
+            source-repo/src/discargar/ui/ dest-repo/src/discargar/ui/
+          cp source-repo/src/discargar/app.py dest-repo/src/discargar/app.py
+          cp source-repo/src/discargar/log.py dest-repo/src/discargar/log.py
+
+      - name: Crear pull request en el repositorio de Windows
+        env:
+          GH_TOKEN: ${{ secrets.WINDOWS_REPO_TOKEN }}
+        working-directory: dest-repo
+        run: |
+          set -euo pipefail
+          git config user.name "discargar-sync[bot]"
+          git config user.email "actions@users.noreply.github.com"
+
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "Sin cambios que sincronizar."
+            exit 0
+          fi
+
+          BRANCH="sync/from-linux-${GITHUB_SHA:0:12}"
+          git checkout -b "$BRANCH"
+          git add -A
+          git commit -m "Sync common logic from discargar-linux@${GITHUB_SHA:0:12}"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --repo "${{ vars.WINDOWS_REPO }}" \
+            --base main \
+            --head "$BRANCH" \
+            --title "Sync common logic from discargar-linux" \
+            --body "Sincronización automática desde https://github.com/${{ github.repository }}/commit/${GITHUB_SHA}.
+
+Revisa antes de fusionar: esto sobrescribe \`src/discargar/engine/\` y la mayor parte de \`src/discargar/ui/\` (se excluye \`ui/motion.py\`, específico de cada plataforma)."
