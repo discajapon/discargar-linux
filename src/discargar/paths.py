@@ -65,3 +65,14 @@ def downloads_dir() -> Path:
     path = Path.home() / "Downloads"
     path.mkdir(parents=True, exist_ok=True)
     return path
+
+
+def bundled_ffmpeg_dir() -> Path | None:
+    """Directorio con un ffmpeg/ffprobe empaquetado junto a la app, o None.
+
+    En Linux siempre es None: se usa el ffmpeg del sistema (o, bajo Flatpak,
+    el del host). Existe para que `engine/ffmpeg_bridge.py` sea común con el
+    repo de Windows, donde ffmpeg va incluido en el instalador y esta
+    función devuelve su ruta.
+    """
+    return None

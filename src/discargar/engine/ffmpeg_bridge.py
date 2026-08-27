@@ -1,14 +1,18 @@
-"""Localiza ffmpeg y ffprobe, incluso corriendo dentro del sandbox de
-Flatpak.
+"""Localiza ffmpeg y ffprobe: empaquetado junto a la app, en el PATH del
+sistema, o en el host cuando se corre dentro del sandbox de Flatpak.
 
-Fuera de Flatpak, yt-dlp encuentra ffmpeg solo con que esté en el PATH del
-sistema. Dentro de Flatpak el proceso vive en su propio filesystem: no ve
-`/usr/bin/ffmpeg` del host aunque exista, así que hay que pasar por
-`flatpak-spawn --host` (ver documentación de Flatpak sobre el sandbox). La
-solución: si estamos en Flatpak, generar dos envoltorios diminutos
-(`ffmpeg`, `ffprobe`) que reenvían la llamada al host, guardarlos en el
-directorio de datos, y decirle a yt-dlp que use esa carpeta con
---ffmpeg-location.
+Orden de búsqueda:
+
+1. `paths.bundled_ffmpeg_dir()` — un ffmpeg incluido con la app. En Linux
+   siempre es None; en el repo de Windows devuelve la carpeta del ffmpeg
+   que trae el instalador.
+2. Fuera de Flatpak: `ffmpeg` en el PATH del sistema.
+3. Dentro de Flatpak el proceso vive en su propio filesystem y no ve
+   `/usr/bin/ffmpeg` del host aunque exista, así que hay que pasar por
+   `flatpak-spawn --host` (ver documentación de Flatpak sobre el sandbox):
+   se generan dos envoltorios diminutos (`ffmpeg`, `ffprobe`) que reenvían
+   la llamada al host y se le dice a yt-dlp que use esa carpeta con
+   --ffmpeg-location.
 """
 
 from __future__ import annotations
@@ -20,7 +24,7 @@ import subprocess
 from pathlib import Path
 
 from discargar.log import get_logger
-from discargar.paths import data_dir
+from discargar.paths import bundled_ffmpeg_dir, data_dir
 
 logger = get_logger(__name__)
 
@@ -54,7 +58,12 @@ def _ensure_wrapper(path: Path, binary: str) -> None:
 
 def locate_ffmpeg_dir() -> Path | None:
     """Directorio a pasar como --ffmpeg-location a yt-dlp, o None si no hay
-    ffmpeg disponible (ni en el PATH normal, ni en el host bajo Flatpak)."""
+    ffmpeg disponible por ninguna vía (empaquetado, PATH, o host bajo
+    Flatpak)."""
+    bundled = bundled_ffmpeg_dir()
+    if bundled is not None:
+        return bundled
+
     if not running_under_flatpak():
         ffmpeg_path = shutil.which("ffmpeg")
         return Path(ffmpeg_path).parent if ffmpeg_path else None

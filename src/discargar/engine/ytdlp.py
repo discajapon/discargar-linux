@@ -17,6 +17,12 @@ from discargar.paths import engine_dir
 
 logger = get_logger(__name__)
 
+_WINDOWS = platform.system() == "Windows"
+
+# Evita el parpadeo de consola al lanzar yt-dlp desde la app empaquetada en
+# Windows (ver downloader.py). En POSIX no existe y se queda en 0.
+_NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0) if _WINDOWS else 0
+
 _REPOS = {
     "nightly": ("yt-dlp", "yt-dlp-nightly-builds"),
     "stable": ("yt-dlp", "yt-dlp"),
@@ -24,6 +30,10 @@ _REPOS = {
 
 
 def _asset_name() -> str:
+    if _WINDOWS:
+        # Solo x64: otras arquitecturas de Windows quedan fuera de alcance.
+        # Nombre verificado en la sección "RELEASE FILES" del README de yt-dlp.
+        return "yt-dlp.exe"
     machine = platform.machine()
     if machine == "x86_64":
         return "yt-dlp_linux"
@@ -33,7 +43,7 @@ def _asset_name() -> str:
 
 
 def binary_path() -> Path:
-    return engine_dir() / "yt-dlp"
+    return engine_dir() / ("yt-dlp.exe" if _WINDOWS else "yt-dlp")
 
 
 def _state_path() -> Path:
@@ -78,7 +88,8 @@ def _install_from_release(channel: str) -> str:
         raise RuntimeError(f"Verificación de checksum fallida para {asset_name}")
 
     tmp.replace(dest)
-    dest.chmod(dest.stat().st_mode | 0o111)
+    if not _WINDOWS:
+        dest.chmod(dest.stat().st_mode | 0o111)
     _write_state(channel, release.tag)
     logger.info("yt-dlp instalado: canal=%s version=%s", channel, release.tag)
     return release.tag
@@ -119,6 +130,7 @@ def check_and_update(channel: str = "nightly") -> bool:
             capture_output=True,
             text=True,
             timeout=120,
+            creationflags=_NO_WINDOW,
         )
         if result.returncode == 0:
             _write_state(channel, latest.tag)

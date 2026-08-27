@@ -8,6 +8,7 @@ fallo a un EngineError ya clasificado.
 from __future__ import annotations
 
 import os
+import platform
 import shutil
 import subprocess
 import threading
@@ -24,6 +25,11 @@ from discargar.log import get_logger
 from discargar.paths import downloads_dir
 
 logger = get_logger(__name__)
+
+# En Windows, una app empaquetada con PyInstaller no tiene consola: sin esto
+# cada llamada a yt-dlp haría parpadear una ventana negra. En POSIX el flag
+# no existe, así que se queda en 0.
+_NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0) if platform.system() == "Windows" else 0
 
 ProgressEvent = progress_mod.DownloadProgress | progress_mod.PostprocessProgress
 ProgressCallback = Callable[[ProgressEvent], None]
@@ -127,6 +133,7 @@ def run_download(
         text=True,
         bufsize=1,
         env=_build_env(),
+        creationflags=_NO_WINDOW,
     )
 
     def _watch_cancel() -> None:

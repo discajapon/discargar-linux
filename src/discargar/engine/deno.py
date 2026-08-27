@@ -18,10 +18,15 @@ from discargar.paths import engine_dir
 
 logger = get_logger(__name__)
 
+_WINDOWS = platform.system() == "Windows"
+
 _OWNER, _REPO = "denoland", "deno"
 
 
 def _asset_name() -> str:
+    if _WINDOWS:
+        # Solo x64: otras arquitecturas de Windows quedan fuera de alcance.
+        return "deno-x86_64-pc-windows-msvc.zip"
     machine = platform.machine()
     if machine == "x86_64":
         return "deno-x86_64-unknown-linux-gnu.zip"
@@ -31,7 +36,7 @@ def _asset_name() -> str:
 
 
 def binary_path() -> Path:
-    return engine_dir() / "deno"
+    return engine_dir() / ("deno.exe" if _WINDOWS else "deno")
 
 
 def _state_path() -> Path:
@@ -74,12 +79,14 @@ def _install_from_release() -> str:
         raise RuntimeError(f"Verificación de checksum fallida para {asset_name}")
 
     dest = binary_path()
+    member = "deno.exe" if _WINDOWS else "deno"
     with zipfile.ZipFile(zip_path) as zf:
-        with zf.open("deno") as src, dest.open("wb") as out:
+        with zf.open(member) as src, dest.open("wb") as out:
             out.write(src.read())
     zip_path.unlink(missing_ok=True)
 
-    dest.chmod(dest.stat().st_mode | 0o111)
+    if not _WINDOWS:
+        dest.chmod(dest.stat().st_mode | 0o111)
     _write_state(release.tag)
     logger.info("deno instalado: version=%s", release.tag)
     return release.tag
