@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Discargar
+Comment=Download video and audio by pasting a link
+Exec=discargar
+Icon=discargar
+Terminal=false
+Categories=Network;AudioVideo;
+StartupWMClass=discargar

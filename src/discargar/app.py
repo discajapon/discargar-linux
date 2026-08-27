@@ -26,6 +26,10 @@ def main() -> int:
     app = QGuiApplication(sys.argv)
     app.setApplicationName("discargar")
     app.setOrganizationName("disca_japon")
+    # Debe coincidir con el nombre base de data/discargar.desktop para que
+    # GNOME agrupe la ventana con el icono correcto en la instalación
+    # nativa; en Flatpak esto lo resuelve el propio sandbox y no estorba.
+    app.setDesktopFileName("discargar")
 
     theme = Theme()
     reduced_motion = ReducedMotion()
