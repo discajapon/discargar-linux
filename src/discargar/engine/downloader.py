@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Callable
 from urllib.parse import urlparse
 
-from discargar.engine import progress as progress_mod
+from discargar.engine import ffmpeg_bridge, progress as progress_mod
 from discargar.engine.deno import binary_path as deno_binary_path
 from discargar.engine.errors import EngineError, ErrorCategory, classify_stderr
 from discargar.engine.ytdlp import binary_path as ytdlp_binary_path
@@ -96,8 +96,9 @@ def run_download(
     """
     _validate_url(url)
 
-    if shutil.which("ffmpeg") is None:
-        raise EngineError(ErrorCategory.FFMPEG_MISSING, "ffmpeg no está en el PATH")
+    ffmpeg_dir = ffmpeg_bridge.locate_ffmpeg_dir()
+    if ffmpeg_dir is None:
+        raise EngineError(ErrorCategory.FFMPEG_MISSING, "ffmpeg no disponible (ni en PATH ni, bajo Flatpak, en el host)")
 
     ytdlp = ytdlp_binary_path()
     if not ytdlp.is_file():
@@ -112,6 +113,7 @@ def run_download(
         "--no-playlist",
         "-f", "bv*+ba/b",
         "--merge-output-format", "mp4",
+        "--ffmpeg-location", str(ffmpeg_dir),
         "-P", str(dest_dir),
         "--newline",
         *progress_mod.progress_template_args(),
