@@ -1,0 +1,23 @@
+# Terceros que se muestran en Ajustes > Licencias y créditos (Linux).
+# Este archivo NO se sincroniza con el repo de Windows: cada plataforma
+# declara los suyos. El campo `file` debe existir en este mismo directorio.
+
+[[entries]]
+name = "discargar"
+spdx = "GPL-3.0-or-later"
+file = "discargar-GPL-3.0-or-later.txt"
+
+[[entries]]
+name = "PySide6 / Qt"
+spdx = "LGPL-3.0"
+file = "PySide6-Qt-LGPL-3.0.txt"
+
+[[entries]]
+name = "yt-dlp"
+spdx = "Unlicense"
+file = "yt-dlp-UNLICENSE.txt"
+
+[[entries]]
+name = "deno"
+spdx = "MIT"
+file = "deno-MIT.txt"

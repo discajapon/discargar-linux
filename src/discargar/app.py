@@ -23,7 +23,26 @@ from discargar.ui.theme import Theme
 logger = get_logger(__name__)
 
 
+def _set_app_identity() -> None:
+    """En Windows, fija el AppUserModelID del proceso antes de crear la
+    ventana para que la barra de tareas agrupe la app bajo su propio icono y
+    la asocie con el acceso directo del menú de inicio (que declara el mismo
+    ID). En Linux el equivalente es `setDesktopFileName`, más abajo. No-op en
+    cualquier otro sistema.
+    """
+    if sys.platform != "win32":
+        return
+    import ctypes
+
+    try:
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("discajapon.discargar")
+    except (OSError, AttributeError) as exc:  # pragma: no cover - solo Windows
+        logger.warning("No se pudo fijar el AppUserModelID: %s", exc)
+
+
 def main() -> int:
+    _set_app_identity()
+
     app = QGuiApplication(sys.argv)
     app.setApplicationName("discargar")
     app.setOrganizationName("disca_japon")
